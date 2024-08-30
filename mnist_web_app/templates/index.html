@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MNIST Digit Recognition</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>MNIST Digit Recognition</h1>
+        <form id="uploadForm" action="/predict" method="post" enctype="multipart/form-data">
+            <input type="file" id="fileInput" name="file" accept="image/*" required>
+            <button type="submit">Upload Image</button>
+        </form>
+        <div id="result" class="result"></div>
+        <div id="loader" class="loader" style="display:none;"></div>
+    </div>
+
+    <script>
+        document.getElementById('uploadForm').addEventListener('submit', function(event) {
+            event.preventDefault(); // Prevent the form from submitting normally
+
+            let formData = new FormData(this);
+            document.getElementById('loader').style.display = 'block'; // Show loader
+
+            fetch('/predict', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('loader').style.display = 'none'; // Hide loader
+
+                if (data.error) {
+                    document.getElementById('result').textContent = 'Error: ' + data.error;
+                } else {
+                    document.getElementById('result').textContent = 'Predicted Class: ' + data.predicted_class;
+                }
+            })
+            .catch(error => {
+                document.getElementById('loader').style.display = 'none'; // Hide loader
+                document.getElementById('result').textContent = 'Error: ' + error;
+            });
+        });
+    </script>
+</body>
+</html>
